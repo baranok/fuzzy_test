@@ -22,10 +22,10 @@ do
     precipitation['fallout ash'] = L {fuzzy.triangle, 	{12, 12.5, 13}}
 
     local wind = F {'wind', {0, 10}}
-    wind['none'] = L {fuzzy.gauss, 						{1, 0}}
-    wind['mild'] = L {fuzzy.gauss, 						{1, 2}}
-    wind['normal'] = L {fuzzy.gauss, 					{1, 5}}
-    wind['strong'] = L {fuzzy.gauss, 					{1, 7}}
+    wind['calm'] = L {fuzzy.gauss, 						{1, 0}}
+    wind['breeze'] = L {fuzzy.gauss, 					{1, 2}}
+    wind['gale'] = L {fuzzy.gauss, 						{1, 5}}
+    wind['storm'] = L {fuzzy.gauss, 					{1, 7}}
     wind['hurricane'] = L {fuzzy.gauss, 				{1, 10}}
 
     local hum = F {'humidity', {0, 10}}
@@ -50,19 +50,37 @@ do
    	sky['obscured'] = L {fuzzy.gauss, 					{1, 10}}
 
    	local normal_temp = -(temp['absolute zero'] + temp['chilly'] + temp['cool'] + temp['burning'])
+   	local cold_temp = -(temp['so so'] + temp['warm'] + temp['hot'] + temp['burning'])
+   	local hot_temp = -(temp['absolute zero'] + temp['chilly'] + temp['cool'])
 
     local r1 = R()
     r1.premise = hum['medium'] * normal_temp * -(sky['clear'])
     r1.implication = precipitation['drizzle']
 
     local r2 = R()
-    r2.premise = hum['wet'] * normal_temp * -(sky['clear'] + sky['partly cloudy'])
+    r2.premise = hum['medium'] + hum['wet'] * normal_temp * -(sky['clear'] + sky['partly cloudy'])
     r2.implication = precipitation['light rain']
 
+    local r3 = R()
+    r3.premise = hum['wet'] * normal_temp * -(sky['clear'] + sky['partly cloudy'])
+    r3.implication = precipitation['rain']
+
+    local r4 = R()
+    r4.premise = hum['medium'] * cold_temp * -(sky['clear'] + sky['partly cloudy'])
+    r4.implication = precipitation['light snow']
+
+    local r5 = R()
+    r5.premise = hum['wet'] * cold_temp * -(sky['clear'] + sky['partly cloudy'])
+    r5.implication = precipitation['snow']
+
+    local r6 = R()
+    r6.premise = hum['wet'] * normal_temp * -(sky['clear'] + sky['partly cloudy']) + wind['gale']
+    r6.implication = precipitation['thunderstorm']
+
     local values = {
-    	wind = 0,
-    	humidity = 8,
-    	temperature = 20,
+    	wind = 5,
+    	humidity = 10,
+    	temperature = 21,
     	sky = 4,
     }
 
